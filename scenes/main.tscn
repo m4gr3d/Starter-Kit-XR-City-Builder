@@ -1,4 +1,4 @@
-[gd_scene load_steps=24 format=3 uid="uid://vgwrcfy1qawf"]
+[gd_scene load_steps=27 format=3 uid="uid://vgwrcfy1qawf"]
 
 [ext_resource type="Script" path="res://scripts/builder.gd" id="1_jybm7"]
 [ext_resource type="Environment" uid="uid://jbptgqvstei3" path="res://scenes/main-environment.tres" id="1_yndf3"]
@@ -22,15 +22,23 @@
 [ext_resource type="Resource" uid="uid://bqb6g3t0tebno" path="res://structures/building-garage.tres" id="13_ut2cy"]
 [ext_resource type="FontFile" uid="uid://d0cxd77jybrcn" path="res://fonts/lilita_one_regular.ttf" id="16_vlub6"]
 [ext_resource type="Texture2D" uid="uid://bng0d1sou7c8a" path="res://sprites/coin.png" id="17_cjamx"]
+[ext_resource type="Script" path="res://scripts/xr_setup.gd" id="23_6u4me"]
 
 [sub_resource type="LabelSettings" id="LabelSettings_q176i"]
 font = ExtResource("16_vlub6")
 font_size = 24
 shadow_color = Color(0, 0, 0, 0.392157)
 
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_s44wr"]
+albedo_color = Color(0.266759, 0.205642, 0.0696352, 1)
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_l00td"]
+material = SubResource("StandardMaterial3D_s44wr")
+size = Vector2(15, 15)
+
 [node name="Main" type="Node3D"]
 
-[node name="Builder" type="Node3D" parent="." node_paths=PackedStringArray("selector", "selector_container", "view_camera", "gridmap", "cash_display")]
+[node name="Builder" type="Node3D" parent="." node_paths=PackedStringArray("selector", "selector_container", "view_camera", "gridmap", "cash_display", "city_ground")]
 script = ExtResource("1_jybm7")
 structures = Array[ExtResource("2_54v6r")]([ExtResource("2_bwyku"), ExtResource("3_o6o81"), ExtResource("3_6fpyf"), ExtResource("7_kqu4g"), ExtResource("8_1swhv"), ExtResource("4_b632v"), ExtResource("8_4il2q"), ExtResource("5_v5o2m"), ExtResource("6_f4603"), ExtResource("10_84or2"), ExtResource("12_8obn7"), ExtResource("13_ut2cy"), ExtResource("9_ifw7y"), ExtResource("10_vaeah"), ExtResource("13_t5d2v")])
 selector = NodePath("Selector")
@@ -38,6 +46,7 @@ selector_container = NodePath("Selector/Container")
 view_camera = NodePath("../View/Camera")
 gridmap = NodePath("../GridMap")
 cash_display = NodePath("../CanvasLayer/Control/Cash")
+city_ground = NodePath("../CityGround")
 
 [node name="Selector" type="Node3D" parent="Builder"]
 
@@ -92,3 +101,26 @@ offset_right = 270.0
 offset_bottom = 101.0
 text = "$10,000"
 label_settings = SubResource("LabelSettings_q176i")
+
+[node name="CityGround" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.005, 0)
+mesh = SubResource("PlaneMesh_l00td")
+
+[node name="XROrigin3D" type="XROrigin3D" parent="."]
+transform = Transform3D(0.967055, 0, -0.254568, 0, 1, 0, 0.254568, 0, 0.967055, 2.54529, 10.2164, 19.296)
+script = ExtResource("23_6u4me")
+
+[node name="XRCamera3D" type="XRCamera3D" parent="XROrigin3D"]
+
+[node name="LeftXRController" type="XRController3D" parent="XROrigin3D"]
+tracker = &"left_hand"
+pose = &"grip"
+
+[node name="LeftControllerRenderModel" type="OpenXRFbRenderModel" parent="XROrigin3D/LeftXRController"]
+
+[node name="RightXRController" type="XRController3D" parent="XROrigin3D"]
+tracker = &"right_hand"
+pose = &"grip"
+
+[node name="RightControllerRenderModel" type="OpenXRFbRenderModel" parent="XROrigin3D/RightXRController"]
+render_model_type = 1

@@ -11,13 +11,11 @@ var index:int = 0 # Index of structure being built
 @export var view_camera:Camera3D # Used for raycasting mouse
 @export var gridmap:GridMap
 @export var cash_display:Label
-
-var plane:Plane # Used for raycasting mouse
+@export var city_ground: MeshInstance3D
 
 func _ready():
 	
 	map = DataMap.new()
-	plane = Plane(Vector3.UP, Vector3.ZERO)
 	
 	# Create new MeshLibrary dynamically, can also be done in the editor
 	# See: https://docs.godotengine.org/en/stable/tutorials/3d/using_gridmaps.html
@@ -48,10 +46,14 @@ func _process(delta):
 	action_load() # Loading
 	
 	# Map position based on mouse
+	if city_ground == null:
+		return
 	
-	var world_position = plane.intersects_ray(
+	var world_position = city_ground.get_aabb().intersects_ray(
 		view_camera.project_ray_origin(get_viewport().get_mouse_position()),
 		view_camera.project_ray_normal(get_viewport().get_mouse_position()))
+	if world_position == null:
+		return
 
 	var gridmap_position = Vector3(round(world_position.x), 0, round(world_position.z))
 	selector.position = lerp(selector.position, gridmap_position, delta * 40)
